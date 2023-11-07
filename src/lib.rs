@@ -28,7 +28,7 @@ mod tests {
         let rec = sharer.reconstruct(shares[1..=k as usize].to_vec()).unwrap();
         assert_eq!(data, rec);
     }
-    
+
     #[test]
     fn test_1_mb() {
         let (n, k) = (10, 7);

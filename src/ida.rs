@@ -33,18 +33,16 @@ impl RabinIDA {
 
 impl RabinIDA {
     pub fn share(&self, data: Vec<u8>) -> Vec<RabinShare> {
-        (1..=self.n)
-            .map(|x| self.share_at_index(&data, x))
-            .collect()
+        (1..=self.n).map(|x| self.share_at_index(&data, x)).collect()
     }
 
-    /// Return the specific share at the index $i$. The loop is an optimized implementation based on 
+    /// Return the specific share at the index $i$. The loop is an optimized implementation based on
     /// usage of Vandermonde matrices as the encoding matrix, as well as $x_i$ being set to the index.
     ///
     /// # Arguments
     ///
     /// * `data` - Data to distribute.
-    /// 
+    ///
     /// * `index` - Index of the share.
     pub fn share_at_index(&self, data: &Vec<u8>, index: u8) -> RabinShare {
         let gx = GF(index);
@@ -58,7 +56,7 @@ impl RabinIDA {
                         .into_iter()
                         .rev()
                         // Optimized Matrix multiplication for Vandermonde encoding matrices
-                        .fold(GF::zero(), |res, b| GF(*b) + gx * res) 
+                        .fold(GF::zero(), |res, b| GF(*b) + gx * res)
                         .into()
                 })
                 .collect(),

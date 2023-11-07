@@ -13,13 +13,9 @@ pub fn ida_benchmark(c: &mut Criterion) {
         b.iter(|| sharer.share(black_box(data.clone())))
     });
     c.bench_function(&format!("ida 1mb {k} of {n} reconstruct"), |b| {
-        b.iter(|| { 
-            sharer
-                .reconstruct(black_box(shares[1..=k as usize].to_vec()))
-                .unwrap()
-        })
+        b.iter(|| sharer.reconstruct(black_box(shares[1..=k as usize].to_vec())).unwrap())
     });
-    { 
+    {
         let mut group = c.benchmark_group("throughput-create-shares");
         group.throughput(Throughput::Bytes(data.len() as u64));
         group.bench_function(format!("create_shares_1mb: {k} of {n}"), |b| {
@@ -30,9 +26,7 @@ pub fn ida_benchmark(c: &mut Criterion) {
     let mut group = c.benchmark_group("throughput-reconstruct-shares");
     group.throughput(Throughput::Bytes(data.len() as u64));
     group.bench_function(format!("reconstruct_shares_1mb: {k} of {n}"), |b| {
-        b.iter(|| sharer
-            .reconstruct(black_box(shares[1..=k as usize].to_vec()))
-            .unwrap())
+        b.iter(|| sharer.reconstruct(black_box(shares[1..=k as usize].to_vec())).unwrap())
     });
     group.finish();
 }

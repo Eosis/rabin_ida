@@ -60,8 +60,8 @@ pub trait Field:
     fn idx(&self) -> usize;
 }
 
-/// # The Golias Field Type.
-/// Supports all basic Mathemtaical Functions
+/// # The Galois Field Type.
+/// Supports all basic Mathematical Functions
 ///
 #[derive(Debug, Clone, Copy, Eq, PartialEq)]
 pub struct GF<T>(pub T);

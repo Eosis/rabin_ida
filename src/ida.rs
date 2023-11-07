@@ -14,7 +14,7 @@ use crate::rabin_share::RabinShare;
 /// let sharer = RabinIDA::new(n, k);
 ///
 /// let shares = sharer.share(data.clone());
-/// dbg!(shares.clone());
+///
 /// // You only need k out of the n shares to reconstruct
 /// let rec = sharer.reconstruct(shares[1..=k as usize].to_vec()).unwrap();
 ///
@@ -38,18 +38,27 @@ impl RabinIDA {
             .collect()
     }
 
+    /// Return the specific share at the index $i$. The loop is an optimized implementation based on 
+    /// usage of Vandermonde matrices as the encoding matrix, as well as $x_i$ being set to the index.
+    ///
+    /// # Arguments
+    ///
+    /// * `data` - Data to distribute.
+    /// 
+    /// * `index` - Index of the share.
     pub fn share_at_index(&self, data: &Vec<u8>, index: u8) -> RabinShare {
         let gx = GF(index);
         RabinShare {
             id: index,
-            length: data.len(),
+            original_length: data.len(),
             body: data
                 .chunks(self.k as usize)
                 .map(|chunk| {
                     chunk
                         .into_iter()
                         .rev()
-                        .fold(GF::zero(), |res, b| GF(*b) + gx * res)
+                        // Optimized Matrix multiplication for Vandermonde encoding matrices
+                        .fold(GF::zero(), |res, b| GF(*b) + gx * res) 
                         .into()
                 })
                 .collect(),
@@ -62,11 +71,11 @@ impl RabinIDA {
         }
         let xvalues = shares.iter().map(|x| x.id).collect();
         let decoder = generate_decoder(self.k as usize, xvalues);
-        let mut secret = vec![0u8; shares[0].length];
+        let mut secret = vec![0u8; shares[0].original_length];
         for i in 0..shares[0].body.len() {
             for j in 0..self.k as usize {
                 let index = (i * self.k as usize) + j;
-                if index >= shares[0].length {
+                if index >= shares[0].original_length {
                     continue;
                 }
                 secret[index] = (0..self.k as usize)
@@ -80,11 +89,11 @@ impl RabinIDA {
 }
 
 fn generate_decoder(size: usize, values: Vec<u8>) -> Vec<Vec<u8>> {
-    inverse(
+    dbg!(inverse(
         (0..size)
             .map(|i| (0..size).map(|j| GF(values[i]).pow(j).into()).collect())
             .collect(),
-    )
+    ))
 }
 
 fn two_mut<T>(sl: &mut [T], i: usize, j: usize) -> (&mut T, &mut T) {
@@ -103,10 +112,6 @@ fn inverse(matrix: Vec<Vec<u8>>) -> Vec<Vec<u8>> {
     let mut tmp = matrix.clone();
 
     for i in 0..size {
-        // if tmp[i][i] == 0 && !find_and_swap_nonzero_in_row(i, size, &mut tmp, &mut res) {
-        //   size = size - 1;
-        // }
-
         let inv = GF(tmp[i][i]).inverse().into();
         normalize_row(&mut tmp[i][..], &mut res[i][..], inv);
 
@@ -125,8 +130,6 @@ fn inverse(matrix: Vec<Vec<u8>>) -> Vec<Vec<u8>> {
             mult_and_subtract(&mut resj[..], &mut resi[..], coeff);
         }
     }
-
-    // we could assert here that tmp is now an identity matrix
 
     return res;
 }

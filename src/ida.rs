@@ -11,7 +11,7 @@ use crate::rabin_share::RabinShare;
 ///
 /// let n = 255;
 /// let k = 100;
-/// let sharer = RabinIDA::new(n, k);
+/// let sharer = RabinIDA { shares: n, threshold: k };
 ///
 /// let shares = sharer.share(data.clone());
 ///
@@ -20,20 +20,16 @@ use crate::rabin_share::RabinShare;
 ///
 /// assert_eq!(data, rec);
 /// ```
-pub struct RabinIDA {
-    n: u8,
-    k: u8,
-}
 
-impl RabinIDA {
-    pub fn new(n: u8, k: u8) -> Self {
-        Self { n, k }
-    }
+#[derive(Clone, Copy)]
+pub struct RabinIDA {
+    pub shares: u8,
+    pub threshold: u8,
 }
 
 impl RabinIDA {
     pub fn share(&self, data: Vec<u8>) -> Vec<RabinShare> {
-        (1..=self.n).map(|x| self.share_at_index(&data, x)).collect()
+        (1..=self.shares).map(|x| self.share_at_index(&data, x)).collect()
     }
 
     /// Return the specific share at the index $i$. The loop is an optimized implementation based on
@@ -50,7 +46,7 @@ impl RabinIDA {
             id: index,
             original_length: data.len(),
             body: data
-                .chunks(self.k as usize)
+                .chunks(self.threshold as usize)
                 .map(|chunk| {
                     chunk
                         .into_iter()
@@ -64,19 +60,19 @@ impl RabinIDA {
     }
 
     pub fn reconstruct(&self, shares: Vec<RabinShare>) -> Option<Vec<u8>> {
-        if shares.len() < self.k as usize {
+        if shares.len() < self.threshold as usize {
             return None;
         }
         let xvalues = shares.iter().map(|x| x.id).collect();
-        let decoder = generate_decoder(self.k as usize, xvalues);
+        let decoder = generate_decoder(self.threshold as usize, xvalues);
         let mut secret = vec![0u8; shares[0].original_length];
         for i in 0..shares[0].body.len() {
-            for j in 0..self.k as usize {
-                let index = (i * self.k as usize) + j;
+            for j in 0..self.threshold as usize {
+                let index = (i * self.threshold as usize) + j;
                 if index >= shares[0].original_length {
                     continue;
                 }
-                secret[index] = (0..self.k as usize)
+                secret[index] = (0..self.threshold as usize)
                     .map(|x| GF(decoder[j][x]) * GF(shares[x].body[i]))
                     .sum::<GF<u8>>()
                     .into();

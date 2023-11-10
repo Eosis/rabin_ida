@@ -54,11 +54,11 @@ impl RabinIDA {
                 .map(|chunk| {
                     chunk
                         .into_iter()
-                        .rev()
                         // Optimized Matrix multiplication for Vandermonde encoding matrices
+                        .rev()
                         .fold(GF::zero(), |res, b| GF(*b) + gx * res)
                         .into()
-                })
+                })  
                 .collect(),
         }
     }
@@ -87,11 +87,11 @@ impl RabinIDA {
 }
 
 fn generate_decoder(size: usize, values: Vec<u8>) -> Vec<Vec<u8>> {
-    dbg!(inverse(
+    inverse(
         (0..size)
             .map(|i| (0..size).map(|j| GF(values[i]).pow(j).into()).collect())
             .collect(),
-    ))
+    )
 }
 
 fn two_mut<T>(sl: &mut [T], i: usize, j: usize) -> (&mut T, &mut T) {

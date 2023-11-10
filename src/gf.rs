@@ -1,8 +1,3 @@
-//! # Galois Field
-//!
-//! finite field arithmetic
-//!
-
 use core::{
     fmt::{self, Debug, Display, Formatter},
     iter::{Product, Sum},
@@ -66,18 +61,8 @@ pub trait Field:
 #[derive(Debug, Clone, Copy, Eq, PartialEq)]
 pub struct GF<T>(pub T);
 
-// impl<T> GF<T> {
-//     pub fn new(inner: T) -> Self {
-//         Self(inner)
-//     }
-// }
-
 pub type GFU8 = GF<u8>;
 pub type GF256 = GFU8;
-// pub type GFU16 = GF<u16>;
-// pub type GFU32 = GF<u32>;
-// pub type GFU64 = GF<u64>;
-// pub type GFU128 = GF<u128>;
 
 // TODO: Generate with build script
 const LOGTABLE: [usize; 256] = [
@@ -138,6 +123,7 @@ impl Field for GF<u8> {
     fn inverse(&self) -> Self {
         Self(ALOGTABLE[255 - (LOGTABLE[self.idx()] % 255)])
     }
+    
     fn idx(&self) -> usize {
         self.0 as usize
     }

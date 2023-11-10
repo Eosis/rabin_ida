@@ -40,4 +40,17 @@ mod tests {
         let recovered = sharer.reconstruct(shares[1..=k as usize].to_vec()).unwrap();
         assert_eq!(data, recovered);
     }
+    #[test]
+    fn test_share_coeffs() {
+        let (n, k) = (3, 2);
+        let sharer = RabinIDA::new(n, k);
+        let data: Vec<_> = vec![
+            169,
+            45,
+            202,
+            222
+        ];
+        let zeroth = sharer.share_at_index(&data, 1);
+        assert_eq!(data.into_iter().step_by(k.into()).collect::<Vec<_>>(), zeroth.body);
+    }
 }

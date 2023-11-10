@@ -1,9 +1,10 @@
 //! # Sharing
 
-pub mod ida;
-
 mod gf;
-mod rabin_share;
+pub mod ida;
+pub mod rabin_share;
+
+pub use crate::rabin_share::RabinShare;
 
 #[doc(inline)]
 pub use crate::ida::RabinIDA;
@@ -46,13 +47,11 @@ mod tests {
         let shares = 3u8;
         let threshold = 2u8;
         let sharer = RabinIDA { shares, threshold };
-        let data: Vec<_> = vec![
-            169,
-            45,
-            202,
-            222
-        ];
+        let data: Vec<_> = vec![169, 45, 202, 222];
         let zeroth = sharer.share_at_index(&data, 0);
-        assert_eq!(data.into_iter().step_by(threshold.into()).collect::<Vec<_>>(), zeroth.body);
+        assert_eq!(
+            data.into_iter().step_by(threshold.into()).collect::<Vec<_>>(),
+            zeroth.body
+        );
     }
 }

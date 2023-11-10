@@ -123,7 +123,7 @@ impl Field for GF<u8> {
     fn inverse(&self) -> Self {
         Self(ALOGTABLE[255 - (LOGTABLE[self.idx()] % 255)])
     }
-    
+
     fn idx(&self) -> usize {
         self.0 as usize
     }

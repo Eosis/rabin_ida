@@ -54,7 +54,7 @@ impl RabinIDA {
                         .rev()
                         .fold(GF::zero(), |res, b| GF(*b) + gx * res)
                         .into()
-                })  
+                })
                 .collect(),
         }
     }

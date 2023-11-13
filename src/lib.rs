@@ -23,7 +23,7 @@ mod tests {
         #[strategy(1..#shares)] threshold: u8,
     ) {
         let sharer = RabinIDA { shares, threshold };
-        let mut shares = sharer.share(data.clone());
+        let mut shares = sharer.share(&data);
         let mut rng = thread_rng();
         shares.shuffle(&mut rng); // test any k shares will recreate data
         let rec = sharer.reconstruct(shares[1..=threshold as usize].to_vec()).unwrap();
@@ -37,7 +37,7 @@ mod tests {
         let sharer = RabinIDA { shares, threshold };
         let mut rng = thread_rng();
         let data: Vec<_> = (0..1024).map(|_| rng.gen_range(0..=255u8)).collect();
-        let mut shares = sharer.share(data.clone());
+        let mut shares = sharer.share(&data);
         shares.shuffle(&mut rng); // test any k shares will recreate data
         let recovered = sharer.reconstruct(shares[1..=threshold as usize].to_vec()).unwrap();
         assert_eq!(data, recovered);
@@ -53,5 +53,14 @@ mod tests {
             data.into_iter().step_by(threshold.into()).collect::<Vec<_>>(),
             zeroth.body
         );
+    }
+
+    #[test]
+    fn test_share() {
+        let data = [1u8, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+        dbg!(RabinIDA { 
+            shares: 5,
+            threshold: 4
+        }.share(&data));
     }
 }

@@ -28,8 +28,8 @@ pub struct RabinIDA {
 }
 
 impl RabinIDA {
-    pub fn share(&self, data: Vec<u8>) -> Vec<RabinShare> {
-        (1..=self.shares).map(|x| self.share_at_index(&data, x)).collect()
+    pub fn share(&self, data:&[u8]) -> Vec<RabinShare> {
+        (1..=self.shares).map(|x| self.share_at_index(data, x)).collect()
     }
 
     /// Return the specific share at the index $i$. The loop is an optimized implementation based on
@@ -40,7 +40,7 @@ impl RabinIDA {
     /// * `data` - Data to distribute.
     ///
     /// * `index` - Index of the share.
-    pub fn share_at_index(&self, data: &Vec<u8>, index: u8) -> RabinShare {
+    pub fn share_at_index(&self, data: &[u8], index: u8) -> RabinShare {
         let gx = GF(index);
         RabinShare {
             id: index,
